@@ -74,17 +74,23 @@ function Navbar() {
           ))}
         </div>
       </div>
-      <nav className={`fixed left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'top-0 bg-[#faf7f2]/95 backdrop-blur-md py-2 shadow-sm' : 'top-[28px] md:top-[32px] bg-transparent py-4 md:py-6'}`}>
+<nav
+  className={`fixed left-0 right-0 z-50 transition-all duration-500 ${
+    scrolled
+      ? "top-0 bg-[#faf7f2]/95 backdrop-blur-md py-1.5 shadow-sm"
+      : "top-4 md:top-5 bg-gradient-to-b from-black/50 to-transparent backdrop-blur-sm py-1.5 md:py-2"
+  }`}
+>
         <div className="max-w-[1600px] mx-auto px-4 md:px-12 flex items-center justify-between">
-          <div className="hidden md:flex items-center gap-6 lg:gap-8 text-[12px] tracking-refined uppercase">
+          <div className={`hidden md:flex items-center gap-6 lg:gap-8 text-[12px] tracking-refined uppercase ${scrolled ? 'text-[#1a1a1a]' : 'text-[#faf7f2]'}`}>
             {links.slice(0, 3).map(l => (
               <a key={l} href={`#${l.toLowerCase()}`} className="luxury-underline hover:text-[#b8935a] transition-colors">{l}</a>
             ))}
           </div>
           <a href="#home" className="flex-1 md:flex-none flex justify-center md:justify-start items-center">
-            <img src="/elira-logo.jpg" alt="Elira Atelier" className={`h-12 md:h-14 lg:h-16 w-auto object-contain transition-all duration-500 ${scrolled ? '' : 'shadow-lg'}`} />
+            <img src="/elira-logo.png" alt="Elira Atelier" className={`h-16 md:h-20 lg:h-24 w-auto object-contain transition-all duration-500`} style={scrolled ? {} : { filter: 'brightness(0) invert(1)' }} />
           </a>
-          <div className="hidden md:flex items-center gap-4 lg:gap-6 text-[12px] tracking-refined uppercase">
+          <div className={`hidden md:flex items-center gap-4 lg:gap-6 text-[12px] tracking-refined uppercase ${scrolled ? 'text-[#1a1a1a]' : 'text-[#faf7f2]'}`}>
             {links.slice(3).map(l => (
               <a key={l} href={`#${l.toLowerCase()}`} className="luxury-underline hover:text-[#b8935a] transition-colors">{l}</a>
             ))}
@@ -141,43 +147,43 @@ function Hero() {
     return () => clearInterval(t)
   }, [])
   return (
-    <section id="home" className="relative h-screen w-full overflow-hidden">
+    <section id="home" className="relative min-h-screen w-full overflow-hidden">
       <AnimatePresence mode="wait">
         <motion.div key={idx} initial={{ opacity: 0, scale: 1.05 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }} className="absolute inset-0">
           <div className="absolute inset-0 bg-cover bg-center animate-kenburns" style={{ backgroundImage: `url(${HERO_SLIDES[idx].image})` }} />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-black/60" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/80" />
         </motion.div>
       </AnimatePresence>
 
-      <div className="relative z-10 h-full flex flex-col justify-center px-6 md:px-16 lg:px-24 text-[#faf7f2] max-w-[1600px] mx-auto pt-32">
+      <div className="relative z-10 min-h-screen flex flex-col justify-center px-6 md:px-16 lg:px-24 text-[#faf7f2] max-w-[1600px] mx-auto pt-32 md:pt-40 pb-32 md:pb-24">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, duration: 1 }}>
-          <div className="flex items-center gap-4 text-[11px] tracking-luxury mb-8">
-            <div className="h-px w-16 bg-[#b8935a]" />
+          <div className="flex items-center gap-4 text-[10px] md:text-[11px] tracking-luxury mb-6 md:mb-8">
+            <div className="h-px w-12 md:w-16 bg-[#b8935a]" />
             <span className="text-[#d4b483]">{HERO_SLIDES[idx].tag}</span>
           </div>
         </motion.div>
-        <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 1.2, ease: [0.16, 1, 0.3, 1] }} className="font-display font-light text-6xl md:text-8xl lg:text-[9rem] leading-[0.95] max-w-5xl">
+        <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 1.2, ease: [0.16, 1, 0.3, 1] }} className="font-display font-light text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[9rem] leading-[0.95] max-w-5xl">
           Tailored<br/><span className="italic text-[#f5e6c8]">Elegance</span><br/>Redefined.
         </motion.h1>
-        <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9, duration: 1 }} className="mt-8 max-w-xl text-lg md:text-xl text-[#faf7f2]/80 font-light leading-relaxed">
+        <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9, duration: 1 }} className="mt-6 md:mt-8 max-w-xl text-base md:text-lg lg:text-xl text-[#faf7f2]/85 font-light leading-relaxed">
           Discover timeless fashion designed for every occasion — where heritage craftsmanship meets contemporary vision.
         </motion.p>
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2, duration: 1 }} className="mt-12 flex flex-col sm:flex-row gap-4">
-          <a href="#collections" className="group inline-flex items-center justify-center gap-3 bg-[#faf7f2] text-[#1a1a1a] px-10 py-4 text-[12px] tracking-luxury hover:bg-[#b8935a] hover:text-[#faf7f2] transition-all duration-500">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2, duration: 1 }} className="mt-8 md:mt-12 flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <a href="#collections" className="group inline-flex items-center justify-center gap-3 bg-[#faf7f2] text-[#1a1a1a] px-8 md:px-10 py-3.5 md:py-4 text-[11px] md:text-[12px] tracking-luxury hover:bg-[#b8935a] hover:text-[#faf7f2] transition-all duration-500">
             EXPLORE COLLECTION
             <ArrowUpRight className="w-4 h-4 group-hover:rotate-45 transition-transform" />
           </a>
-          <a href="#contact" className="group inline-flex items-center justify-center gap-3 border border-[#faf7f2]/60 text-[#faf7f2] px-10 py-4 text-[12px] tracking-luxury hover:bg-[#faf7f2] hover:text-[#1a1a1a] transition-all duration-500">
+          <a href="#contact" className="group inline-flex items-center justify-center gap-3 border border-[#faf7f2]/60 text-[#faf7f2] px-8 md:px-10 py-3.5 md:py-4 text-[11px] md:text-[12px] tracking-luxury hover:bg-[#faf7f2] hover:text-[#1a1a1a] transition-all duration-500">
             CONTACT US
           </a>
         </motion.div>
 
-        <div className="absolute bottom-10 left-6 md:left-16 lg:left-24 flex items-center gap-3">
+        <div className="absolute bottom-6 md:bottom-10 left-6 md:left-16 lg:left-24 flex items-center gap-3">
           {HERO_SLIDES.map((_, i) => (
-            <button key={i} onClick={() => setIdx(i)} className={`h-px transition-all duration-500 ${i === idx ? 'w-16 bg-[#b8935a]' : 'w-8 bg-white/40'}`} />
+            <button key={i} onClick={() => setIdx(i)} className={`h-px transition-all duration-500 ${i === idx ? 'w-12 md:w-16 bg-[#b8935a]' : 'w-6 md:w-8 bg-white/40'}`} />
           ))}
         </div>
-        <div className="absolute bottom-10 right-6 md:right-16 lg:right-24 text-[10px] tracking-luxury text-[#faf7f2]/60">
+        <div className="hidden md:block absolute bottom-10 right-6 md:right-16 lg:right-24 text-[10px] tracking-luxury text-[#faf7f2]/60">
           SCROLL TO DISCOVER
         </div>
       </div>

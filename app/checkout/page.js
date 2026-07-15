@@ -113,7 +113,7 @@ export default function CheckoutPage() {
         <div className="max-w-[1600px] mx-auto flex items-center justify-between">
           <Link href="/cart" className="flex items-center gap-2 text-[10px] md:text-[11px] tracking-luxury hover:text-[#b8935a]"><ArrowLeft className="w-4 h-4" /> <span className="hidden sm:inline">BACK TO BAG</span></Link>
           <Link href="/" className="flex-shrink-0">
-            <img src="/elira-logo.jpg" alt="Elira Atelier" className="h-10 md:h-12 w-auto object-contain" />
+            <img src="/elira-logo.png" alt="Elira Atelier" className="h-14 md:h-16 w-auto object-contain" />
           </Link>
           <div className="text-[10px] md:text-[11px] tracking-luxury flex items-center gap-2"><Shield className="w-3 h-3" /> <span className="hidden sm:inline">SECURE CHECKOUT</span></div>
         </div>

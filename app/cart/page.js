@@ -46,7 +46,7 @@ export default function CartPage() {
             <ArrowLeft className="w-4 h-4" /> CONTINUE SHOPPING
           </Link>
           <Link href="/" className="flex-shrink-0">
-            <img src="/elira-logo.jpg" alt="Elira Atelier" className="h-10 md:h-12 w-auto object-contain" />
+            <img src="/elira-logo.png" alt="Elira Atelier" className="h-14 md:h-16 w-auto object-contain" />
           </Link>
           <div className="text-[10px] md:text-[11px] tracking-luxury">CART ({totals.count})</div>
         </div>
