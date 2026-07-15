@@ -106,12 +106,11 @@ export default function AccountPage() {
     <div className="min-h-screen bg-[#faf7f2]">
       <header className="border-b border-[#e6dfd0] py-6 px-6 md:px-16 lg:px-24">
         <div className="max-w-[1600px] mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-[11px] tracking-luxury hover:text-[#b8935a]"><ArrowLeft className="w-4 h-4" /> CONTINUE SHOPPING</Link>
-          <Link href="/" className="text-center">
-            <div className="font-display font-light text-2xl tracking-refined">ELIRA</div>
-            <div className="text-[9px] tracking-luxury text-[#b8935a] -mt-1">ATELIER</div>
+          <Link href="/" className="flex items-center gap-2 text-[10px] md:text-[11px] tracking-luxury hover:text-[#b8935a]"><ArrowLeft className="w-4 h-4" /> <span className="hidden sm:inline">CONTINUE SHOPPING</span></Link>
+          <Link href="/" className="flex-shrink-0">
+            <img src="/elira-logo.jpg" alt="Elira Atelier" className="h-10 md:h-12 w-auto object-contain" />
           </Link>
-          <button onClick={logout} className="flex items-center gap-2 text-[11px] tracking-luxury hover:text-[#b8935a]"><LogOut className="w-4 h-4" /> SIGN OUT</button>
+          <button onClick={logout} className="flex items-center gap-2 text-[10px] md:text-[11px] tracking-luxury hover:text-[#b8935a]"><LogOut className="w-4 h-4" /> <span className="hidden sm:inline">SIGN OUT</span></button>
         </div>
       </header>
 
@@ -122,13 +121,13 @@ export default function AccountPage() {
           <p className="text-[#1a1a1a]/60 mt-2">{user.email}</p>
         </motion.div>
 
-        <div className="flex gap-8 border-b border-[#e6dfd0] mb-12">
+        <div className="flex gap-4 md:gap-8 border-b border-[#e6dfd0] mb-8 md:mb-12 overflow-x-auto scrollbar-none">
           {[
             { id: 'orders', label: 'Orders', icon: Package, count: orders.length },
             { id: 'wishlist', label: 'Wishlist', icon: Heart, count: wishlist.length },
             { id: 'profile', label: 'Profile', icon: User },
           ].map(t => (
-            <button key={t.id} onClick={() => setTab(t.id)} className={`flex items-center gap-3 pb-4 text-[11px] tracking-luxury border-b-2 transition-colors ${tab === t.id ? 'border-[#b8935a] text-[#b8935a]' : 'border-transparent text-[#1a1a1a]/60 hover:text-[#1a1a1a]'}`}>
+            <button key={t.id} onClick={() => setTab(t.id)} className={`flex items-center gap-2 md:gap-3 pb-4 text-[10px] md:text-[11px] tracking-luxury border-b-2 transition-colors whitespace-nowrap ${tab === t.id ? 'border-[#b8935a] text-[#b8935a]' : 'border-transparent text-[#1a1a1a]/60 hover:text-[#1a1a1a]'}`}>
               <t.icon className="w-4 h-4" /> {t.label.toUpperCase()} {t.count !== undefined && <span className="text-[#1a1a1a]/40">({t.count})</span>}
             </button>
           ))}

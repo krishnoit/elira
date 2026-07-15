@@ -111,12 +111,11 @@ export default function CheckoutPage() {
     <div className="min-h-screen bg-[#faf7f2]">
       <header className="border-b border-[#e6dfd0] py-6 px-6 md:px-16 lg:px-24">
         <div className="max-w-[1600px] mx-auto flex items-center justify-between">
-          <Link href="/cart" className="flex items-center gap-2 text-[11px] tracking-luxury hover:text-[#b8935a]"><ArrowLeft className="w-4 h-4" /> BACK TO BAG</Link>
-          <Link href="/" className="text-center">
-            <div className="font-display font-light text-2xl tracking-refined">ELIRA</div>
-            <div className="text-[9px] tracking-luxury text-[#b8935a] -mt-1">ATELIER</div>
+          <Link href="/cart" className="flex items-center gap-2 text-[10px] md:text-[11px] tracking-luxury hover:text-[#b8935a]"><ArrowLeft className="w-4 h-4" /> <span className="hidden sm:inline">BACK TO BAG</span></Link>
+          <Link href="/" className="flex-shrink-0">
+            <img src="/elira-logo.jpg" alt="Elira Atelier" className="h-10 md:h-12 w-auto object-contain" />
           </Link>
-          <div className="text-[11px] tracking-luxury flex items-center gap-2"><Shield className="w-3 h-3" /> SECURE CHECKOUT</div>
+          <div className="text-[10px] md:text-[11px] tracking-luxury flex items-center gap-2"><Shield className="w-3 h-3" /> <span className="hidden sm:inline">SECURE CHECKOUT</span></div>
         </div>
       </header>
 
@@ -266,12 +265,12 @@ function Steps({ step, loggedIn }) {
     : [{ n: 1, label: 'Sign in' }, { n: 2, label: 'Delivery' }, { n: 3, label: 'Payment' }]
   const cur = loggedIn ? step - 1 : step
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2 md:gap-3 overflow-x-auto scrollbar-none">
       {steps.map((s, i) => (
-        <div key={s.n} className="flex items-center gap-3">
-          <div className={`w-8 h-8 flex items-center justify-center text-xs ${cur >= s.n ? 'bg-[#1a1a1a] text-[#faf7f2]' : 'bg-[#e6dfd0] text-[#1a1a1a]/60'}`}>{s.n}</div>
-          <span className={`text-[11px] tracking-luxury ${cur >= s.n ? 'text-[#1a1a1a]' : 'text-[#1a1a1a]/40'}`}>{s.label.toUpperCase()}</span>
-          {i < steps.length - 1 && <div className={`w-12 h-px ${cur > s.n ? 'bg-[#b8935a]' : 'bg-[#e6dfd0]'}`} />}
+        <div key={s.n} className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+          <div className={`w-7 h-7 md:w-8 md:h-8 flex items-center justify-center text-xs flex-shrink-0 ${cur >= s.n ? 'bg-[#1a1a1a] text-[#faf7f2]' : 'bg-[#e6dfd0] text-[#1a1a1a]/60'}`}>{s.n}</div>
+          <span className={`text-[10px] md:text-[11px] tracking-luxury whitespace-nowrap ${cur >= s.n ? 'text-[#1a1a1a]' : 'text-[#1a1a1a]/40'}`}>{s.label.toUpperCase()}</span>
+          {i < steps.length - 1 && <div className={`w-6 md:w-12 h-px ${cur > s.n ? 'bg-[#b8935a]' : 'bg-[#e6dfd0]'}`} />}
         </div>
       ))}
     </div>

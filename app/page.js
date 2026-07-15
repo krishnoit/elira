@@ -60,7 +60,7 @@ function Navbar() {
   const links = ['Home', 'Collections', 'Gallery', 'About', 'Contact']
   return (
     <>
-      <div className="bg-[#1a1a1a] text-[#faf7f2] text-[11px] tracking-luxury py-2 text-center overflow-hidden">
+      <div className={`fixed top-0 left-0 right-0 z-50 bg-[#1a1a1a] text-[#faf7f2] text-[10px] md:text-[11px] tracking-luxury py-2 text-center overflow-hidden transition-transform duration-500 ${scrolled ? '-translate-y-full' : 'translate-y-0'}`}>
         <div className="flex whitespace-nowrap animate-marquee">
           {[...Array(2)].map((_, i) => (
             <div key={i} className="flex shrink-0">
@@ -74,22 +74,21 @@ function Navbar() {
           ))}
         </div>
       </div>
-      <nav className={`fixed top-[32px] left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'bg-[#faf7f2]/95 backdrop-blur-md py-3 shadow-sm' : 'bg-transparent py-6'}`}>
-        <div className="max-w-[1600px] mx-auto px-6 md:px-12 flex items-center justify-between">
-          <div className="hidden md:flex items-center gap-8 text-[12px] tracking-refined uppercase">
+      <nav className={`fixed left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'top-0 bg-[#faf7f2]/95 backdrop-blur-md py-2 shadow-sm' : 'top-[28px] md:top-[32px] bg-transparent py-4 md:py-6'}`}>
+        <div className="max-w-[1600px] mx-auto px-4 md:px-12 flex items-center justify-between">
+          <div className="hidden md:flex items-center gap-6 lg:gap-8 text-[12px] tracking-refined uppercase">
             {links.slice(0, 3).map(l => (
               <a key={l} href={`#${l.toLowerCase()}`} className="luxury-underline hover:text-[#b8935a] transition-colors">{l}</a>
             ))}
           </div>
-          <a href="#home" className="flex-1 md:flex-none text-center">
-            <div className="font-display font-light text-2xl md:text-3xl tracking-refined">ELIRA</div>
-            <div className="text-[9px] tracking-luxury text-[#b8935a] -mt-1">ATELIER</div>
+          <a href="#home" className="flex-1 md:flex-none flex justify-center md:justify-start items-center">
+            <img src="/elira-logo.jpg" alt="Elira Atelier" className={`h-12 md:h-14 lg:h-16 w-auto object-contain transition-all duration-500 ${scrolled ? '' : 'shadow-lg'}`} />
           </a>
-          <div className="hidden md:flex items-center gap-6 text-[12px] tracking-refined uppercase">
+          <div className="hidden md:flex items-center gap-4 lg:gap-6 text-[12px] tracking-refined uppercase">
             {links.slice(3).map(l => (
               <a key={l} href={`#${l.toLowerCase()}`} className="luxury-underline hover:text-[#b8935a] transition-colors">{l}</a>
             ))}
-            <div className="flex items-center gap-4 ml-4">
+            <div className="flex items-center gap-3 lg:gap-4 ml-2 lg:ml-4">
               <Search className="w-4 h-4 cursor-pointer hover:text-[#b8935a]" />
               {user ? (
                 <Link href="/account" className="flex items-center gap-2 hover:text-[#b8935a]" title={user.name}>
@@ -105,13 +104,27 @@ function Navbar() {
               </div>
             </div>
           </div>
-          <button className="md:hidden" onClick={() => setOpen(!open)}>{open ? <X /> : <Menu />}</button>
+          <div className="md:hidden flex items-center gap-4">
+            <div className="relative">
+              <Link href="/cart"><ShoppingBag className={`w-5 h-5 ${scrolled ? 'text-[#1a1a1a]' : 'text-[#faf7f2]'}`} /></Link>
+              <span className="absolute -top-2 -right-2 bg-[#b8935a] text-white text-[9px] rounded-full w-4 h-4 flex items-center justify-center pointer-events-none">{cartCount}</span>
+            </div>
+            <button onClick={() => setOpen(!open)} className={scrolled ? 'text-[#1a1a1a]' : 'text-[#faf7f2]'}>{open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}</button>
+          </div>
         </div>
         <AnimatePresence>
           {open && (
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="md:hidden bg-[#faf7f2] border-t border-[#e6dfd0]">
-              <div className="px-6 py-6 flex flex-col gap-4 text-sm tracking-refined uppercase">
-                {links.map(l => <a key={l} href={`#${l.toLowerCase()}`} onClick={() => setOpen(false)}>{l}</a>)}
+              <div className="px-6 py-6 flex flex-col gap-4 text-sm tracking-refined uppercase text-[#1a1a1a]">
+                {links.map(l => <a key={l} href={`#${l.toLowerCase()}`} onClick={() => setOpen(false)} className="border-b border-[#e6dfd0] pb-3">{l}</a>)}
+                {user ? (
+                  <Link href="/account" onClick={() => setOpen(false)} className="border-b border-[#e6dfd0] pb-3 flex items-center gap-3">
+                    {user.picture ? <img src={user.picture} alt="" className="w-6 h-6 rounded-full" /> : <div className="w-6 h-6 rounded-full bg-[#b8935a] text-white text-[10px] flex items-center justify-center">{user.name?.[0]?.toUpperCase()}</div>}
+                    MY ACCOUNT
+                  </Link>
+                ) : (
+                  <Link href="/login" onClick={() => setOpen(false)} className="border-b border-[#e6dfd0] pb-3">SIGN IN</Link>
+                )}
               </div>
             </motion.div>
           )}

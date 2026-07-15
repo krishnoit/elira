@@ -45,11 +45,10 @@ export default function CartPage() {
           <Link href="/" className="flex items-center gap-2 text-[11px] tracking-luxury hover:text-[#b8935a]">
             <ArrowLeft className="w-4 h-4" /> CONTINUE SHOPPING
           </Link>
-          <Link href="/" className="text-center">
-            <div className="font-display font-light text-2xl tracking-refined">ELIRA</div>
-            <div className="text-[9px] tracking-luxury text-[#b8935a] -mt-1">ATELIER</div>
+          <Link href="/" className="flex-shrink-0">
+            <img src="/elira-logo.jpg" alt="Elira Atelier" className="h-10 md:h-12 w-auto object-contain" />
           </Link>
-          <div className="text-[11px] tracking-luxury">CART ({totals.count})</div>
+          <div className="text-[10px] md:text-[11px] tracking-luxury">CART ({totals.count})</div>
         </div>
       </header>
 

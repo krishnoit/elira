@@ -47,9 +47,8 @@ function LoginInner() {
       <div className="hidden lg:block flex-1 relative bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1574015974293-817f0ebebb74?w=1200&q=80')" }}>
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-black/70" />
         <div className="absolute inset-0 flex flex-col justify-between p-12 text-[#faf7f2]">
-          <Link href="/" className="self-start">
-            <div className="font-display font-light text-3xl tracking-refined">ELIRA</div>
-            <div className="text-[9px] tracking-luxury text-[#b8935a] -mt-1">ATELIER</div>
+          <Link href="/" className="self-start block bg-white/95 backdrop-blur-sm px-4 py-2 rounded">
+            <img src="/elira-logo.jpg" alt="Elira Atelier" className="h-10 md:h-12 w-auto object-contain" />
           </Link>
           <div className="max-w-md">
             <div className="text-[10px] tracking-luxury text-[#d4b483] mb-4">— THE HOUSE OF ELIRA</div>
@@ -63,7 +62,7 @@ function LoginInner() {
       <div className="flex-1 flex items-center justify-center p-6">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
           <div className="lg:hidden text-center mb-8">
-            <Link href="/"><div className="font-display font-light text-3xl tracking-refined">ELIRA</div><div className="text-[9px] tracking-luxury text-[#b8935a] -mt-1">ATELIER</div></Link>
+            <Link href="/"><img src="/elira-logo.jpg" alt="Elira Atelier" className="h-12 w-auto object-contain mx-auto" /></Link>
           </div>
           <div className="text-[10px] tracking-luxury text-[#b8935a] mb-3">— {mode === 'login' ? 'WELCOME BACK' : 'CREATE ACCOUNT'} —</div>
           <h2 className="font-display text-4xl md:text-5xl mb-2">{mode === 'login' ? 'Sign in' : 'Register'}</h2>
