@@ -44,12 +44,14 @@ function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
   const [cartCount, setCartCount] = useState(0)
+  const [user, setUser] = useState(null)
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
     window.addEventListener('scroll', onScroll)
     const updateCount = () => setCartCount(cartTotals(getCart()).count)
     updateCount()
     window.addEventListener('elira-cart-update', updateCount)
+    fetch('/api/auth/me').then(r => r.json()).then(d => setUser(d.user)).catch(() => {})
     return () => {
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('elira-cart-update', updateCount)
@@ -89,6 +91,13 @@ function Navbar() {
             ))}
             <div className="flex items-center gap-4 ml-4">
               <Search className="w-4 h-4 cursor-pointer hover:text-[#b8935a]" />
+              {user ? (
+                <Link href="/account" className="flex items-center gap-2 hover:text-[#b8935a]" title={user.name}>
+                  {user.picture ? <img src={user.picture} alt="" className="w-6 h-6 rounded-full border border-[#b8935a]" /> : <div className="w-6 h-6 rounded-full bg-[#b8935a] text-white text-[10px] flex items-center justify-center">{user.name?.[0]?.toUpperCase()}</div>}
+                </Link>
+              ) : (
+                <Link href="/login" className="text-[11px] tracking-luxury hover:text-[#b8935a]">SIGN IN</Link>
+              )}
               <Heart className="w-4 h-4 cursor-pointer hover:text-[#b8935a]" />
               <div className="relative cursor-pointer">
                 <Link href="/cart"><ShoppingBag className="w-4 h-4 hover:text-[#b8935a]" /></Link>
