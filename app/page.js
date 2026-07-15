@@ -3,10 +3,12 @@
 import { useEffect, useState, useRef } from 'react'
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import { ChevronRight, ShoppingBag, Heart, Search, Menu, X, Star, Play, MapPin, Phone, Mail, Instagram, Facebook, Twitter, ArrowUpRight, Sparkles, Award, Leaf, Users, Send } from 'lucide-react'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
+import { addToCart, getCart, cartTotals } from '@/lib/cart'
 
 const HERO_SLIDES = [
   { image: 'https://images.unsplash.com/photo-1603189343302-e603f7add05a?w=1920&q=90', tag: 'AUTUMN / WINTER 2025' },
@@ -41,10 +43,17 @@ const TESTIMONIALS = [
 function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
+  const [cartCount, setCartCount] = useState(0)
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
     window.addEventListener('scroll', onScroll)
-    return () => window.removeEventListener('scroll', onScroll)
+    const updateCount = () => setCartCount(cartTotals(getCart()).count)
+    updateCount()
+    window.addEventListener('elira-cart-update', updateCount)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('elira-cart-update', updateCount)
+    }
   }, [])
   const links = ['Home', 'Collections', 'Gallery', 'About', 'Contact']
   return (
@@ -82,8 +91,8 @@ function Navbar() {
               <Search className="w-4 h-4 cursor-pointer hover:text-[#b8935a]" />
               <Heart className="w-4 h-4 cursor-pointer hover:text-[#b8935a]" />
               <div className="relative cursor-pointer">
-                <ShoppingBag className="w-4 h-4 hover:text-[#b8935a]" />
-                <span className="absolute -top-2 -right-2 bg-[#b8935a] text-white text-[9px] rounded-full w-4 h-4 flex items-center justify-center">0</span>
+                <Link href="/cart"><ShoppingBag className="w-4 h-4 hover:text-[#b8935a]" /></Link>
+                <span className="absolute -top-2 -right-2 bg-[#b8935a] text-white text-[9px] rounded-full w-4 h-4 flex items-center justify-center pointer-events-none">{cartCount}</span>
               </div>
             </div>
           </div>
@@ -308,7 +317,7 @@ function Featured() {
                   <button className="w-10 h-10 bg-white flex items-center justify-center hover:bg-[#b8935a] hover:text-white transition-colors"><Heart className="w-4 h-4" /></button>
                   <button className="w-10 h-10 bg-white flex items-center justify-center hover:bg-[#b8935a] hover:text-white transition-colors"><Search className="w-4 h-4" /></button>
                 </div>
-                <button onClick={() => toast.success(`${p.name} added to bag`)} className="absolute bottom-0 left-0 right-0 bg-[#1a1a1a] text-[#faf7f2] py-3 text-[11px] tracking-luxury translate-y-full group-hover:translate-y-0 transition-transform duration-500">ADD TO BAG</button>
+                <button onClick={() => { addToCart(p); toast.success(`${p.name} added to bag`) }} className="absolute bottom-0 left-0 right-0 bg-[#1a1a1a] text-[#faf7f2] py-3 text-[11px] tracking-luxury translate-y-full group-hover:translate-y-0 transition-transform duration-500">ADD TO BAG</button>
               </div>
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -437,9 +446,9 @@ function Contact() {
           <h2 className="font-display font-light text-5xl md:text-7xl leading-[1.05] mb-6">Better yet, <span className="italic">see us in person!</span></h2>
           <p className="text-[#1a1a1a]/70 font-light text-lg mb-12">We love our clients — visit our atelier during business hours for a private consultation.</p>
           <div className="space-y-6 text-sm">
-            <div className="flex items-start gap-4"><MapPin className="w-4 h-4 mt-1 text-[#b8935a]" /><div><div className="font-display text-lg">Elira Atelier</div><div className="text-[#1a1a1a]/70">Flagship Store, Mumbai</div></div></div>
+            <div className="flex items-start gap-4"><MapPin className="w-4 h-4 mt-1 text-[#b8935a]" /><div><div className="font-display text-lg">Elira Atelier</div><div className="text-[#1a1a1a]/70">Indirapuram gzb</div></div></div>
             <div className="flex items-start gap-4"><Phone className="w-4 h-4 mt-1 text-[#b8935a]" /><div><a href="tel:+918384041358" className="font-display text-lg luxury-underline">+91 83840 41358</a></div></div>
-            <div className="flex items-start gap-4"><Mail className="w-4 h-4 mt-1 text-[#b8935a]" /><div><a href="mailto:support@eliraatelier.com" className="block luxury-underline">support@eliraatelier.com</a><a href="mailto:info@eliraatelier.com" className="block luxury-underline">info@eliraatelier.com</a></div></div>
+            <div className="flex items-start gap-4"><Mail className="w-4 h-4 mt-1 text-[#b8935a]" /><div><a href="mailto:support@eliraatelier.com" className="block luxury-underline">support@eliraatelier.com</a>&nbsp;&nbsp;<a href="mailto:info@eliraatelier.com" className="block luxury-underline">info@eliraatelier.com</a></div></div>
             <div className="pt-6 border-t border-[#e6dfd0]">
               <div className="text-[11px] tracking-luxury text-[#b8935a] mb-3">BUSINESS HOURS</div>
               <div className="flex justify-between"><span>Monday – Friday</span><span>09:00 – 17:00</span></div>

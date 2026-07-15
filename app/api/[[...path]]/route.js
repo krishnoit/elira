@@ -130,6 +130,18 @@ export async function GET(request, { params }) {
       return NextResponse.json({ user: u.user }, { headers: cors })
     }
 
+    if (route.startsWith('orders/')) {
+      const id = route.split('/')[1]
+      const item = await db.collection('orders').findOne({ id }, { projection: { _id: 0 } })
+      return NextResponse.json({ order: item }, { headers: cors })
+    }
+
+    if (route === 'admin/orders') {
+      if (!requireAdmin(request)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: cors })
+      const items = await db.collection('orders').find({}, { projection: { _id: 0 } }).sort({ createdAt: -1 }).toArray()
+      return NextResponse.json({ orders: items }, { headers: cors })
+    }
+
     return NextResponse.json({ error: 'Not found' }, { status: 404, headers: cors })
   } catch (e) {
     console.error(e)
@@ -163,6 +175,26 @@ export async function POST(request, { params }) {
       const doc = { id: uuidv4(), email: body.email, createdAt: new Date() }
       await db.collection('newsletter').insertOne(doc)
       return NextResponse.json({ success: true }, { headers: cors })
+    }
+
+    if (route === 'orders') {
+      const orderNumber = 'EA' + Date.now().toString().slice(-8)
+      const doc = {
+        id: uuidv4(),
+        orderNumber,
+        items: body.items || [],
+        totals: body.totals || {},
+        customer: body.customer || {},
+        shipping: body.shipping || {},
+        payment: body.payment || 'cod',
+        notes: body.notes || '',
+        status: 'pending',
+        trackingNumber: '',
+        statusHistory: [{ status: 'pending', at: new Date(), note: 'Order received' }],
+        createdAt: new Date(),
+      }
+      await db.collection('orders').insertOne(doc)
+      return NextResponse.json({ success: true, orderId: doc.id, orderNumber }, { headers: cors })
     }
 
     // ADMIN-ONLY routes below
