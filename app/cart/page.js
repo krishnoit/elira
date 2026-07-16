@@ -24,14 +24,25 @@ export default function CartPage() {
   const discountAmount = Math.round(totals.subtotal * couponApplied / 100)
   const finalTotal = totals.total - discountAmount
 
-  const applyCoupon = () => {
+  const applyCoupon = async () => {
     const code = coupon.trim().toUpperCase()
-    const codes = { 'ELIRA10': 10, 'WELCOME15': 15, 'ATELIER20': 20 }
-    if (codes[code]) {
-      setCouponApplied(codes[code])
-      toast.success(`${code} applied — ${codes[code]}% off`)
-    } else {
-      toast.error('Invalid code. Try ELIRA10, WELCOME15, or ATELIER20')
+    if (!code) { toast.error('Enter a code'); return }
+    try {
+      const r = await fetch('/api/coupons/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, subtotal: totals.subtotal }),
+      })
+      const data = await r.json()
+      if (data.valid) {
+        setCouponApplied(data.discount)
+        toast.success(`${data.code} applied — ${data.discount}% off`)
+      } else {
+        setCouponApplied(0)
+        toast.error(data.error || 'Invalid code')
+      }
+    } catch {
+      toast.error('Could not validate code')
     }
   }
 
@@ -46,7 +57,7 @@ export default function CartPage() {
             <ArrowLeft className="w-4 h-4" /> CONTINUE SHOPPING
           </Link>
           <Link href="/" className="flex-shrink-0">
-            <img src="/elira-logo.png" alt="Elira Atelier" className="h-14 md:h-16 w-auto object-contain" />
+            <img src="/elira-logo.png" alt="Elira Atelier" className="h-16 md:h-22 w-auto object-contain" />
           </Link>
           <div className="text-[10px] md:text-[11px] tracking-luxury">CART ({totals.count})</div>
         </div>
@@ -121,7 +132,6 @@ export default function CartPage() {
                     <input value={coupon} onChange={e=>setCoupon(e.target.value)} placeholder="COUPON CODE" className="flex-1 bg-white border border-[#1a1a1a]/20 px-3 py-2 text-xs outline-none focus:border-[#b8935a]" />
                     <button onClick={applyCoupon} className="bg-[#1a1a1a] text-white px-4 text-[10px] tracking-luxury hover:bg-[#b8935a]"><Tag className="w-4 h-4" /></button>
                   </div>
-                  <div className="text-[9px] text-[#1a1a1a]/40 mt-1">Try: ELIRA10, WELCOME15, ATELIER20</div>
                 </div>
                 <Link href="/checkout" className="w-full bg-[#1a1a1a] text-[#faf7f2] py-4 text-[11px] tracking-luxury hover:bg-[#b8935a] transition-colors flex items-center justify-center gap-3">PROCEED TO CHECKOUT <ArrowRight className="w-3 h-3" /></Link>
                 <div className="text-center text-[10px] text-[#1a1a1a]/50 mt-4">Secure checkout · Free returns within 7 days</div>

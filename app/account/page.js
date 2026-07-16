@@ -108,7 +108,7 @@ export default function AccountPage() {
         <div className="max-w-[1600px] mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-[10px] md:text-[11px] tracking-luxury hover:text-[#b8935a]"><ArrowLeft className="w-4 h-4" /> <span className="hidden sm:inline">CONTINUE SHOPPING</span></Link>
           <Link href="/" className="flex-shrink-0">
-            <img src="/elira-logo.png" alt="Elira Atelier" className="h-14 md:h-16 w-auto object-contain" />
+            <img src="/elira-logo.png" alt="Elira Atelier" className="h-16 md:h-22 w-auto object-contain" />
           </Link>
           <button onClick={logout} className="flex items-center gap-2 text-[10px] md:text-[11px] tracking-luxury hover:text-[#b8935a]"><LogOut className="w-4 h-4" /> <span className="hidden sm:inline">SIGN OUT</span></button>
         </div>

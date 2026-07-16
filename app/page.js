@@ -51,7 +51,7 @@ function Navbar() {
     const updateCount = () => setCartCount(cartTotals(getCart()).count)
     updateCount()
     window.addEventListener('elira-cart-update', updateCount)
-    fetch('/api/auth/me').then(r => r.json()).then(d => setUser(d.user)).catch(() => {})
+    fetch('/api/auth/me').then(r => r.json()).then(d => setUser(d.user)).catch(() => { })
     return () => {
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('elira-cart-update', updateCount)
@@ -60,7 +60,7 @@ function Navbar() {
   const links = ['Home', 'Collections', 'Gallery', 'About', 'Contact']
   return (
     <>
-      <div className={`fixed top-0 left-0 right-0 z-50 bg-[#1a1a1a] text-[#faf7f2] text-[10px] md:text-[11px] tracking-luxury py-2 text-center overflow-hidden transition-transform duration-500 ${scrolled ? '-translate-y-full' : 'translate-y-0'}`}>
+      <div className={`fixed top-0 left-0 right-0 z-50  z-[9999] bg-[#1a1a1a] text-[#faf7f2] text-[10px] md:text-[11px] tracking-luxury py-2 text-center overflow-hidden transition-transform duration-500 ${scrolled ? '-translate-y-full' : 'translate-y-0'}`}>
         <div className="flex whitespace-nowrap animate-marquee">
           {[...Array(2)].map((_, i) => (
             <div key={i} className="flex shrink-0">
@@ -74,13 +74,12 @@ function Navbar() {
           ))}
         </div>
       </div>
-<nav
-  className={`fixed left-0 right-0 z-50 transition-all duration-500 ${
-    scrolled
-      ? "top-0 bg-[#faf7f2]/95 backdrop-blur-md py-1.5 shadow-sm"
-      : "top-4 md:top-5 bg-gradient-to-b from-black/50 to-transparent backdrop-blur-sm py-1.5 md:py-2"
-  }`}
->
+      <nav
+        className={`fixed left-0 right-0 z-50 transition-all duration-500 ${scrolled
+            ? "top-0 bg-[#faf7f2]/95 backdrop-blur-md py-1.5 shadow-sm"
+            : "top-4 md:top-5 bg-gradient-to-b from-black/50 to-transparent backdrop-blur-sm py-1.5 md:py-2"
+          }`}
+      >
         <div className="max-w-[1600px] mx-auto px-4 md:px-12 flex items-center justify-between">
           <div className={`hidden md:flex items-center gap-6 lg:gap-8 text-[12px] tracking-refined uppercase ${scrolled ? 'text-[#1a1a1a]' : 'text-[#faf7f2]'}`}>
             {links.slice(0, 3).map(l => (
@@ -163,7 +162,7 @@ function Hero() {
           </div>
         </motion.div>
         <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5, duration: 1.2, ease: [0.16, 1, 0.3, 1] }} className="font-display font-light text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[9rem] leading-[0.95] max-w-5xl">
-          Tailored<br/><span className="italic text-[#f5e6c8]">Elegance</span><br/>Redefined.
+          Tailored<br /><span className="italic text-[#f5e6c8]">Elegance</span><br />Redefined.
         </motion.h1>
         <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9, duration: 1 }} className="mt-6 md:mt-8 max-w-xl text-base md:text-lg lg:text-xl text-[#faf7f2]/85 font-light leading-relaxed">
           Discover timeless fashion designed for every occasion — where heritage craftsmanship meets contemporary vision.
@@ -274,7 +273,7 @@ function Philosophy() {
               <p.icon className="w-8 h-8 text-[#b8935a] mb-6" strokeWidth={1} />
               <h3 className="font-display text-2xl mb-3">{p.title}</h3>
               <p className="text-sm text-[#faf7f2]/60 font-light leading-relaxed">{p.desc}</p>
-              <div className="mt-6 text-[10px] tracking-luxury text-[#b8935a] opacity-0 group-hover:opacity-100 transition-opacity">— 0{i+1}</div>
+              <div className="mt-6 text-[10px] tracking-luxury text-[#b8935a] opacity-0 group-hover:opacity-100 transition-opacity">— 0{i + 1}</div>
             </motion.div>
           ))}
         </div>
@@ -304,7 +303,7 @@ function Collections() {
             <img src={c.image} alt={c.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-110" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
             <div className="absolute inset-0 p-5 md:p-7 flex flex-col justify-end text-[#faf7f2]">
-              <div className="text-[9px] md:text-[10px] tracking-luxury text-[#d4b483] mb-2">0{i+1}</div>
+              <div className="text-[9px] md:text-[10px] tracking-luxury text-[#d4b483] mb-2">0{i + 1}</div>
               <h3 className="font-display text-xl md:text-2xl mb-1">{c.name}</h3>
               <p className="text-[11px] md:text-xs opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500 text-white/80 font-light hidden md:block">{c.desc}</p>
               <div className="mt-3 inline-flex items-center gap-2 text-[10px] tracking-luxury opacity-0 group-hover:opacity-100 transition-opacity duration-500">EXPLORE <ArrowUpRight className="w-3 h-3" /></div>
@@ -343,7 +342,7 @@ function Featured() {
                 )}
                 <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-x-4 group-hover:translate-x-0">
                   <button className="w-10 h-10 bg-white flex items-center justify-center hover:bg-[#b8935a] hover:text-white transition-colors"><Heart className="w-4 h-4" /></button>
-                  <button className="w-10 h-10 bg-white flex items-center justify-center hover:bg-[#b8935a] hover:text-white transition-colors"><Search className="w-4 h-4" /></button>
+                  {/* <button className="w-10 h-10 bg-white flex items-center justify-center hover:bg-[#b8935a] hover:text-white transition-colors"><Search className="w-4 h-4" /></button> */}
                 </div>
                 <button onClick={() => { addToCart(p); toast.success(`${p.name} added to bag`) }} className="absolute bottom-0 left-0 right-0 bg-[#1a1a1a] text-[#faf7f2] py-3 text-[11px] tracking-luxury translate-y-full group-hover:translate-y-0 transition-transform duration-500">ADD TO BAG</button>
               </div>
@@ -352,14 +351,14 @@ function Featured() {
                   <div className="text-[10px] tracking-luxury text-[#b8935a] mb-1">{p.category.toUpperCase()}</div>
                   <h3 className="font-display text-lg md:text-xl leading-tight">{p.name}</h3>
                   <div className="flex items-center gap-1 mt-1">
-                    {Array.from({length: 5}).map((_, s) => <Star key={s} className={`w-3 h-3 ${s < Math.round(p.rating) ? 'fill-[#b8935a] text-[#b8935a]' : 'text-[#e6dfd0]'}`} />)}
+                    {Array.from({ length: 5 }).map((_, s) => <Star key={s} className={`w-3 h-3 ${s < Math.round(p.rating) ? 'fill-[#b8935a] text-[#b8935a]' : 'text-[#e6dfd0]'}`} />)}
                     <span className="text-[10px] text-[#1a1a1a]/60 ml-1">{p.rating}</span>
                   </div>
                 </div>
                 <div className="text-right">
                   {p.discount > 0 ? (
                     <>
-                      <div className="font-display text-lg">₹{Math.round(p.price * (1 - p.discount/100)).toLocaleString('en-IN')}</div>
+                      <div className="font-display text-lg">₹{Math.round(p.price * (1 - p.discount / 100)).toLocaleString('en-IN')}</div>
                       <div className="text-xs line-through text-[#1a1a1a]/40">₹{p.price.toLocaleString('en-IN')}</div>
                     </>
                   ) : (
@@ -408,9 +407,9 @@ function Gallery() {
       </div>
       <AnimatePresence>
         {lightbox && (
-          <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onClick={() => setLightbox(null)} className="fixed inset-0 bg-black/95 z-[100] flex items-center justify-center p-6">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setLightbox(null)} className="fixed inset-0 bg-black/95 z-[100] flex items-center justify-center p-6">
             <button onClick={() => setLightbox(null)} className="absolute top-6 right-6 text-white"><X className="w-8 h-8" /></button>
-            <motion.img initial={{scale:0.9}} animate={{scale:1}} src={lightbox.url} className="max-w-full max-h-full object-contain" />
+            <motion.img initial={{ scale: 0.9 }} animate={{ scale: 1 }} src={lightbox.url} className="max-w-full max-h-full object-contain" />
           </motion.div>
         )}
       </AnimatePresence>
@@ -432,7 +431,7 @@ function Testimonials() {
         </div>
         <div className="text-[#b8935a] text-6xl font-display leading-none mb-6">“</div>
         <AnimatePresence mode="wait">
-          <motion.div key={i} initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} exit={{opacity:0, y:-20}} transition={{duration:0.8}}>
+          <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.8 }}>
             <p className="font-display italic text-3xl md:text-5xl leading-tight font-light mb-10">{TESTIMONIALS[i].quote}</p>
             <div className="flex items-center justify-center gap-4">
               <img src={TESTIMONIALS[i].image} alt={TESTIMONIALS[i].name} className="w-14 h-14 rounded-full object-cover border-2 border-[#b8935a]" />
@@ -445,7 +444,7 @@ function Testimonials() {
         </AnimatePresence>
         <div className="flex justify-center gap-2 mt-10">
           {TESTIMONIALS.map((_, k) => (
-            <button key={k} onClick={()=>setI(k)} className={`h-px transition-all duration-500 ${k===i?'w-12 bg-[#b8935a]':'w-6 bg-white/30'}`} />
+            <button key={k} onClick={() => setI(k)} className={`h-px transition-all duration-500 ${k === i ? 'w-12 bg-[#b8935a]' : 'w-6 bg-white/30'}`} />
           ))}
         </div>
       </div>
@@ -454,14 +453,14 @@ function Testimonials() {
 }
 
 function Contact() {
-  const [form, setForm] = useState({ name:'', email:'', message:'' })
+  const [form, setForm] = useState({ name: '', email: '', message: '' })
   const [sending, setSending] = useState(false)
   const submit = async (e) => {
     e.preventDefault()
     setSending(true)
-    const r = await fetch('/api/contact', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(form) })
+    const r = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) })
     setSending(false)
-    if (r.ok) { toast.success('Message received. We shall be in touch.'); setForm({name:'',email:'',message:''}) }
+    if (r.ok) { toast.success('Message received. We shall be in touch.'); setForm({ name: '', email: '', message: '' }) }
     else toast.error('Something went wrong')
   }
   return (
@@ -492,9 +491,9 @@ function Contact() {
         <form onSubmit={submit} className="bg-[#f0ebe1] p-8 md:p-12 space-y-6">
           <h3 className="font-display text-3xl mb-2">Send a message</h3>
           <p className="text-sm text-[#1a1a1a]/60 mb-6">A concierge will reply within 24 hours.</p>
-          <div><label className="text-[10px] tracking-luxury">FULL NAME</label><Input required value={form.name} onChange={e=>setForm({...form,name:e.target.value})} className="mt-2 bg-transparent border-0 border-b border-[#1a1a1a]/30 rounded-none px-0 focus-visible:ring-0 focus-visible:border-[#b8935a]" /></div>
-          <div><label className="text-[10px] tracking-luxury">EMAIL</label><Input required type="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} className="mt-2 bg-transparent border-0 border-b border-[#1a1a1a]/30 rounded-none px-0 focus-visible:ring-0 focus-visible:border-[#b8935a]" /></div>
-          <div><label className="text-[10px] tracking-luxury">MESSAGE</label><Textarea required rows={4} value={form.message} onChange={e=>setForm({...form,message:e.target.value})} className="mt-2 bg-transparent border-0 border-b border-[#1a1a1a]/30 rounded-none px-0 focus-visible:ring-0 focus-visible:border-[#b8935a] resize-none" /></div>
+          <div><label className="text-[10px] tracking-luxury">FULL NAME</label><Input required value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="mt-2 bg-transparent border-0 border-b border-[#1a1a1a]/30 rounded-none px-0 focus-visible:ring-0 focus-visible:border-[#b8935a]" /></div>
+          <div><label className="text-[10px] tracking-luxury">EMAIL</label><Input required type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="mt-2 bg-transparent border-0 border-b border-[#1a1a1a]/30 rounded-none px-0 focus-visible:ring-0 focus-visible:border-[#b8935a]" /></div>
+          <div><label className="text-[10px] tracking-luxury">MESSAGE</label><Textarea required rows={4} value={form.message} onChange={e => setForm({ ...form, message: e.target.value })} className="mt-2 bg-transparent border-0 border-b border-[#1a1a1a]/30 rounded-none px-0 focus-visible:ring-0 focus-visible:border-[#b8935a] resize-none" /></div>
           <button type="submit" disabled={sending} className="w-full bg-[#1a1a1a] text-[#faf7f2] py-4 text-[11px] tracking-luxury hover:bg-[#b8935a] transition-colors flex items-center justify-center gap-3">{sending ? 'SENDING...' : 'SEND MESSAGE'} <Send className="w-3 h-3" /></button>
         </form>
       </div>
@@ -506,7 +505,7 @@ function Footer() {
   const [email, setEmail] = useState('')
   const sub = async (e) => {
     e.preventDefault()
-    await fetch('/api/newsletter', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email }) })
+    await fetch('/api/newsletter', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) })
     toast.success('Welcome to the atelier.')
     setEmail('')
   }
@@ -519,20 +518,20 @@ function Footer() {
             <div className="text-[10px] tracking-luxury text-[#b8935a] -mt-1 mb-6">ATELIER</div>
             <p className="text-white/60 font-light max-w-md leading-relaxed mb-8">A house of contemporary craft, honoring the artisan's hand and the wearer's spirit.</p>
             <form onSubmit={sub} className="flex border border-white/20 max-w-md">
-              <input type="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="Your email address" className="flex-1 bg-transparent px-4 py-3 text-sm outline-none placeholder:text-white/40" />
+              <input type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="Your email address" className="flex-1 bg-transparent px-4 py-3 text-sm outline-none placeholder:text-white/40" />
               <button className="bg-[#b8935a] px-6 text-[10px] tracking-luxury hover:bg-[#d4b483] transition-colors">SUBSCRIBE</button>
             </form>
           </div>
           <div>
             <div className="text-[10px] tracking-luxury text-[#b8935a] mb-4">EXPLORE</div>
             <ul className="space-y-3 text-sm text-white/70">
-              {['Collections','Gallery','About','Journal','Contact'].map(l => <li key={l}><a href="#" className="luxury-underline hover:text-white">{l}</a></li>)}
+              {['Collections', 'Gallery', 'About', 'Journal', 'Contact'].map(l => <li key={l}><a href="#" className="luxury-underline hover:text-white">{l}</a></li>)}
             </ul>
           </div>
           <div>
             <div className="text-[10px] tracking-luxury text-[#b8935a] mb-4">CLIENT SERVICES</div>
             <ul className="space-y-3 text-sm text-white/70">
-              {['Bespoke Service','Shipping','Returns','Privacy','Terms'].map(l => <li key={l}><a href="#" className="luxury-underline hover:text-white">{l}</a></li>)}
+              {['Bespoke Service', 'Shipping', 'Returns', 'Privacy', 'Terms'].map(l => <li key={l}><a href="#" className="luxury-underline hover:text-white">{l}</a></li>)}
             </ul>
           </div>
         </div>
@@ -558,8 +557,8 @@ function BackToTop() {
   }, [])
   if (!show) return null
   return (
-    <button onClick={() => window.scrollTo({top:0, behavior:'smooth'})} className="fixed bottom-6 right-6 z-50 w-12 h-12 bg-[#1a1a1a] text-[#faf7f2] flex items-center justify-center hover:bg-[#b8935a] transition-colors">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+    <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="fixed bottom-6 right-6 z-50 w-12 h-12 bg-[#1a1a1a] text-[#faf7f2] flex items-center justify-center hover:bg-[#b8935a] transition-colors">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 19V5M5 12l7-7 7 7" /></svg>
     </button>
   )
 }

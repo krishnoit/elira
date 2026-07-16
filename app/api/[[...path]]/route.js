@@ -255,12 +255,45 @@ export async function GET(request, { params }) {
       const featured = await db.collection('products').countDocuments({ featured: true })
       const orders = await db.collection('orders').countDocuments()
       const users = await db.collection('users').countDocuments()
-      return NextResponse.json({ products, gallery, messages, subscribers, featured, orders, users }, { headers: cors })
+      const revenueAgg = await db.collection('orders').aggregate([{ $group: { _id: null, total: { $sum: '$totals.total' } } }]).toArray()
+      const revenue = revenueAgg[0]?.total || 0
+      const pendingOrders = await db.collection('orders').countDocuments({ status: 'pending' })
+      const recentOrders = await db.collection('orders').find({}, { projection: { _id: 0 } }).sort({ createdAt: -1 }).limit(5).toArray()
+      const topCustomers = await db.collection('orders').aggregate([
+        { $match: { userId: { $ne: null } } },
+        { $group: { _id: '$userId', totalSpent: { $sum: '$totals.total' }, orderCount: { $sum: 1 }, email: { $first: '$userEmail' }, name: { $first: { $concat: ['$customer.firstName', ' ', '$customer.lastName'] } } } },
+        { $sort: { totalSpent: -1 } },
+        { $limit: 5 }
+      ]).toArray()
+      return NextResponse.json({ products, gallery, messages, subscribers, featured, orders, users, revenue, pendingOrders, recentOrders, topCustomers }, { headers: cors })
     }
     if (route === 'admin/orders') {
       if (!requireAdmin(request)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: cors })
       const items = await db.collection('orders').find({}, { projection: { _id: 0 } }).sort({ createdAt: -1 }).toArray()
       return NextResponse.json({ orders: items }, { headers: cors })
+    }
+    if (route === 'admin/customers') {
+      if (!requireAdmin(request)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: cors })
+      const users = await db.collection('users').find({}, { projection: { _id: 0, passwordHash: 0 } }).sort({ createdAt: -1 }).toArray()
+      const stats = await db.collection('orders').aggregate([
+        { $match: { userId: { $ne: null } } },
+        { $group: { _id: '$userId', totalSpent: { $sum: '$totals.total' }, orderCount: { $sum: 1 }, lastOrder: { $max: '$createdAt' } } }
+      ]).toArray()
+      const statsMap = Object.fromEntries(stats.map(s => [s._id, s]))
+      const customers = users.map(u => ({ ...u, totalSpent: statsMap[u.id]?.totalSpent || 0, orderCount: statsMap[u.id]?.orderCount || 0, lastOrder: statsMap[u.id]?.lastOrder || null }))
+      return NextResponse.json({ customers }, { headers: cors })
+    }
+    if (route.startsWith('admin/customers/')) {
+      if (!requireAdmin(request)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: cors })
+      const id = route.split('/')[2]
+      const user = await db.collection('users').findOne({ id }, { projection: { _id: 0, passwordHash: 0 } })
+      const orders = await db.collection('orders').find({ userId: id }, { projection: { _id: 0 } }).sort({ createdAt: -1 }).toArray()
+      return NextResponse.json({ customer: user, orders }, { headers: cors })
+    }
+    if (route === 'admin/coupons') {
+      if (!requireAdmin(request)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: cors })
+      const items = await db.collection('coupons').find({}, { projection: { _id: 0 } }).sort({ createdAt: -1 }).toArray()
+      return NextResponse.json({ coupons: items }, { headers: cors })
     }
 
     return NextResponse.json({ error: 'Not found' }, { status: 404, headers: cors })
@@ -362,6 +395,17 @@ export async function POST(request, { params }) {
       return NextResponse.json({ success: true }, { headers: cors })
     }
 
+    // ---- Coupon validation (public) ----
+    if (route === 'coupons/validate') {
+      const code = (body.code || '').trim().toUpperCase()
+      if (!code) return NextResponse.json({ valid: false, error: 'Enter a code' }, { headers: cors })
+      const coupon = await db.collection('coupons').findOne({ code, active: true })
+      if (!coupon) return NextResponse.json({ valid: false, error: 'Invalid or expired code' }, { headers: cors })
+      if (coupon.expiresAt && new Date(coupon.expiresAt) < new Date()) return NextResponse.json({ valid: false, error: 'This code has expired' }, { headers: cors })
+      if (coupon.minOrder && body.subtotal < coupon.minOrder) return NextResponse.json({ valid: false, error: `Minimum order ₹${coupon.minOrder}` }, { headers: cors })
+      return NextResponse.json({ valid: true, discount: coupon.discount, code: coupon.code, description: coupon.description }, { headers: cors })
+    }
+
     // ---- Orders ----
     if (route === 'orders') {
       const u = getUserFromRequest(request)
@@ -448,6 +492,26 @@ export async function POST(request, { params }) {
       const { _id, ...rest } = doc
       return NextResponse.json({ success: true, item: rest }, { headers: cors })
     }
+    if (route === 'admin/coupons') {
+      const code = (body.code || '').trim().toUpperCase()
+      if (!code) return NextResponse.json({ error: 'Code required' }, { status: 400, headers: cors })
+      const existing = await db.collection('coupons').findOne({ code })
+      if (existing) return NextResponse.json({ error: 'Code already exists' }, { status: 409, headers: cors })
+      const doc = {
+        id: uuidv4(),
+        code,
+        discount: Number(body.discount) || 10,
+        description: body.description || '',
+        minOrder: Number(body.minOrder) || 0,
+        expiresAt: body.expiresAt || null,
+        active: true,
+        usageCount: 0,
+        createdAt: new Date(),
+      }
+      await db.collection('coupons').insertOne(doc)
+      const { _id, ...rest } = doc
+      return NextResponse.json({ success: true, coupon: rest }, { headers: cors })
+    }
 
     return NextResponse.json({ error: 'Not found' }, { status: 404, headers: cors })
   } catch (e) {
@@ -495,6 +559,18 @@ export async function PUT(request, { params }) {
       return NextResponse.json({ success: true, order: item }, { headers: cors })
     }
 
+    if (route.startsWith('admin/coupons/')) {
+      const id = route.split('/')[2]
+      const update = {}
+      if (body.active !== undefined) update.active = !!body.active
+      if (body.discount !== undefined) update.discount = Number(body.discount)
+      if (body.description !== undefined) update.description = body.description
+      if (body.minOrder !== undefined) update.minOrder = Number(body.minOrder)
+      await db.collection('coupons').updateOne({ id }, { $set: update })
+      const item = await db.collection('coupons').findOne({ id }, { projection: { _id: 0 } })
+      return NextResponse.json({ success: true, coupon: item }, { headers: cors })
+    }
+
     return NextResponse.json({ error: 'Not found' }, { status: 404, headers: cors })
   } catch (e) {
     return NextResponse.json({ error: e.message }, { status: 500, headers: cors })
@@ -519,6 +595,11 @@ export async function DELETE(request, { params }) {
     if (route.startsWith('admin/gallery/')) {
       const id = route.split('/')[2]
       await db.collection('gallery').deleteOne({ id })
+      return NextResponse.json({ success: true }, { headers: cors })
+    }
+    if (route.startsWith('admin/coupons/')) {
+      const id = route.split('/')[2]
+      await db.collection('coupons').deleteOne({ id })
       return NextResponse.json({ success: true }, { headers: cors })
     }
     return NextResponse.json({ error: 'Not found' }, { status: 404, headers: cors })
