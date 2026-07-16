@@ -5,13 +5,14 @@ import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import Razorpay from 'razorpay'
+import { sendMail, passwordResetEmail } from '@/lib/email'
 
 export const runtime = 'nodejs'
 
 const uri = process.env.MONGO_URL
 const dbName = process.env.DB_NAME || 'elira_atelier'
-const ADMIN_USER = process.env.ADMIN_USER || 'admin'
-const ADMIN_PASS = process.env.ADMIN_PASS || 'elira2025'
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@elira.com'
+const ADMIN_PASSWORD_DEFAULT = process.env.ADMIN_PASSWORD_DEFAULT || 'Test@123'
 const ADMIN_SECRET = process.env.ADMIN_SECRET || 'elira-atelier-secret-2026'
 const JWT_SECRET = process.env.JWT_SECRET || 'elira-jwt-secret'
 const APP_URL = process.env.NEXT_PUBLIC_BASE_URL
@@ -96,6 +97,11 @@ async function ensureSeed(db) {
   if (c === 0) await db.collection('products').insertMany(SEED_PRODUCTS)
   const g = await db.collection('gallery').countDocuments()
   if (g === 0) await db.collection('gallery').insertMany(SEED_GALLERY)
+  const a = await db.collection('admins').countDocuments()
+  if (a === 0) {
+    const passwordHash = await bcrypt.hash(ADMIN_PASSWORD_DEFAULT, 10)
+    await db.collection('admins').insertOne({ id: uuidv4(), email: ADMIN_EMAIL, passwordHash, createdAt: new Date() })
+  }
 }
 
 // =========================================================
@@ -312,14 +318,46 @@ export async function POST(request, { params }) {
     const route = pathArr.join('/')
     const db = await getDb()
 
-    // ---- Admin login (special: no body parse issue) ----
+    // ---- Admin login (DB-based with bcrypt) ----
     if (route === 'admin/login') {
       const body = await request.json().catch(() => ({}))
-      if (body.username === ADMIN_USER && body.password === ADMIN_PASS) {
-        const token = signAdmin({ user: body.username, exp: Date.now() + 7 * 24 * 60 * 60 * 1000 })
-        return NextResponse.json({ success: true, token, user: body.username }, { headers: cors })
+      await ensureSeed(db)
+      const email = (body.email || body.username || '').toLowerCase()
+      const admin = await db.collection('admins').findOne({ email })
+      if (!admin) return NextResponse.json({ error: 'Invalid credentials' }, { status: 401, headers: cors })
+      const ok = await bcrypt.compare(body.password || '', admin.passwordHash)
+      if (!ok) return NextResponse.json({ error: 'Invalid credentials' }, { status: 401, headers: cors })
+      const token = signAdmin({ user: admin.email, adminId: admin.id, exp: Date.now() + 7 * 24 * 60 * 60 * 1000 })
+      return NextResponse.json({ success: true, token, user: admin.email }, { headers: cors })
+    }
+
+    // ---- Admin forgot password ----
+    if (route === 'admin/forgot-password') {
+      const body = await request.json().catch(() => ({}))
+      await ensureSeed(db)
+      const email = (body.email || '').toLowerCase()
+      const admin = await db.collection('admins').findOne({ email })
+      if (admin) {
+        const token = crypto.randomBytes(32).toString('hex')
+        const expiresAt = new Date(Date.now() + 60 * 60 * 1000) // 60 min
+        await db.collection('password_resets').insertOne({ token, adminId: admin.id, email: admin.email, kind: 'admin', expiresAt, used: false, createdAt: new Date() })
+        const link = `${APP_URL}/admin/reset-password?token=${token}`
+        try { await sendMail({ to: admin.email, ...passwordResetEmail({ name: 'Administrator', link, isAdmin: true }) }) } catch(e){ console.error('SMTP failed:', e.message) }
       }
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401, headers: cors })
+      return NextResponse.json({ success: true, message: 'If the email exists, a reset link has been sent.' }, { headers: cors })
+    }
+
+    // ---- Admin reset password ----
+    if (route === 'admin/reset-password') {
+      const body = await request.json().catch(() => ({}))
+      const record = await db.collection('password_resets').findOne({ token: body.token, kind: 'admin', used: false })
+      if (!record) return NextResponse.json({ error: 'Invalid or expired link' }, { status: 400, headers: cors })
+      if (new Date(record.expiresAt) < new Date()) return NextResponse.json({ error: 'This link has expired' }, { status: 400, headers: cors })
+      if (!body.password || body.password.length < 6) return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400, headers: cors })
+      const passwordHash = await bcrypt.hash(body.password, 10)
+      await db.collection('admins').updateOne({ id: record.adminId }, { $set: { passwordHash } })
+      await db.collection('password_resets').updateOne({ token: body.token }, { $set: { used: true } })
+      return NextResponse.json({ success: true }, { headers: cors })
     }
 
     const body = await request.json().catch(() => ({}))
@@ -356,6 +394,32 @@ export async function POST(request, { params }) {
       const res = NextResponse.json({ success: true }, { headers: cors })
       res.cookies.set('elira_session', '', { path: '/', maxAge: 0 })
       return res
+    }
+
+    // ---- Customer forgot password ----
+    if (route === 'auth/forgot-password') {
+      const email = (body.email || '').toLowerCase()
+      const user = await db.collection('users').findOne({ email })
+      if (user) {
+        const token = crypto.randomBytes(32).toString('hex')
+        const expiresAt = new Date(Date.now() + 60 * 60 * 1000)
+        await db.collection('password_resets').insertOne({ token, userId: user.id, email: user.email, kind: 'user', expiresAt, used: false, createdAt: new Date() })
+        const link = `${APP_URL}/reset-password?token=${token}`
+        try { await sendMail({ to: user.email, ...passwordResetEmail({ name: user.name, link, isAdmin: false }) }) } catch(e){ console.error('SMTP failed:', e.message) }
+      }
+      return NextResponse.json({ success: true, message: 'If the email exists, a reset link has been sent.' }, { headers: cors })
+    }
+
+    // ---- Customer reset password ----
+    if (route === 'auth/reset-password') {
+      const record = await db.collection('password_resets').findOne({ token: body.token, kind: 'user', used: false })
+      if (!record) return NextResponse.json({ error: 'Invalid or expired link' }, { status: 400, headers: cors })
+      if (new Date(record.expiresAt) < new Date()) return NextResponse.json({ error: 'This link has expired' }, { status: 400, headers: cors })
+      if (!body.password || body.password.length < 6) return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400, headers: cors })
+      const passwordHash = await bcrypt.hash(body.password, 10)
+      await db.collection('users').updateOne({ id: record.userId }, { $set: { passwordHash } })
+      await db.collection('password_resets').updateOne({ token: body.token }, { $set: { used: true } })
+      return NextResponse.json({ success: true }, { headers: cors })
     }
 
     // ---- Cart sync ----

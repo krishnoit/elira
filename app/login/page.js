@@ -97,6 +97,11 @@ function LoginInner() {
                 <Lock className="w-4 h-4 text-[#b8935a]" />
                 <input required type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} className="flex-1 bg-transparent py-2 outline-none text-sm" placeholder={mode === 'register' ? 'Minimum 6 characters' : ''} />
               </div>
+              {mode === 'login' && (
+                <div className="text-right mt-2">
+                  <Link href="/forgot-password" className="text-[10px] tracking-luxury text-[#b8935a] hover:underline">FORGOT PASSWORD?</Link>
+                </div>
+              )}
             </div>
             <button disabled={loading} type="submit" className="w-full bg-[#1a1a1a] text-[#faf7f2] py-4 text-[11px] tracking-luxury hover:bg-[#b8935a] transition-colors flex items-center justify-center gap-3 disabled:opacity-50">
               {loading ? 'PLEASE WAIT...' : (mode === 'login' ? 'SIGN IN' : 'CREATE ACCOUNT')} <ArrowRight className="w-3 h-3" />
