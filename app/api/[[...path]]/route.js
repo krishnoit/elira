@@ -122,7 +122,7 @@ export async function GET(request, { params }) {
       const q = {}
       if (url.searchParams.get('category') && url.searchParams.get('category') !== 'all') q.category = url.searchParams.get('category')
       if (url.searchParams.get('featured')) q.featured = true
-      const items = await db.collection('products').find(q, { projection: { _id: 0 } }).sort({ createdAt: -1 }).toArray()
+      const items = await db.collection('products').find(q, { projection: { _id: 0 } }).sort({ createdAt: -1 }).limit(500).toArray()
       return NextResponse.json({ products: items }, { headers: cors })
     }
     if (route.startsWith('products/')) {
@@ -134,7 +134,7 @@ export async function GET(request, { params }) {
       const url = new URL(request.url)
       const q = {}
       if (url.searchParams.get('category') && url.searchParams.get('category') !== 'all') q.category = url.searchParams.get('category')
-      const items = await db.collection('gallery').find(q, { projection: { _id: 0 } }).sort({ createdAt: -1 }).toArray()
+      const items = await db.collection('gallery').find(q, { projection: { _id: 0 } }).sort({ createdAt: -1 }).limit(500).toArray()
       return NextResponse.json({ gallery: items }, { headers: cors })
     }
 
@@ -147,12 +147,15 @@ export async function GET(request, { params }) {
     }
 
     if (route === 'auth/google/start') {
+      const requestUrl = new URL(request.url)
+      const origin = requestUrl.origin
+      const redirectUri = `${origin}/api/auth/google/callback`
       const state = crypto.randomBytes(16).toString('hex')
       const url = new URL('https://accounts.google.com/o/oauth2/v2/auth')
-      const returnTo = new URL(request.url).searchParams.get('returnTo') || '/account'
+      const returnTo = requestUrl.searchParams.get('returnTo') || '/account'
       url.search = new URLSearchParams({
         client_id: process.env.GOOGLE_CLIENT_ID,
-        redirect_uri: GOOGLE_REDIRECT_URI,
+        redirect_uri: redirectUri,
         response_type: 'code',
         scope: 'openid email profile',
         state: state + '|' + returnTo,
@@ -165,12 +168,14 @@ export async function GET(request, { params }) {
 
     if (route === 'auth/google/callback') {
       const url = new URL(request.url)
+      const origin = url.origin
+      const redirectUri = `${origin}/api/auth/google/callback`
       const code = url.searchParams.get('code')
       const stateFull = url.searchParams.get('state') || ''
       const [state, returnTo = '/account'] = stateFull.split('|')
       const stateCookie = request.cookies.get('google_oauth_state')?.value
       if (!code || !state || state !== stateCookie) {
-        return NextResponse.redirect(new URL('/login?error=state', APP_URL))
+        return NextResponse.redirect(new URL('/login?error=state', origin))
       }
       const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
@@ -179,16 +184,16 @@ export async function GET(request, { params }) {
           code,
           client_id: process.env.GOOGLE_CLIENT_ID,
           client_secret: process.env.GOOGLE_CLIENT_SECRET,
-          redirect_uri: GOOGLE_REDIRECT_URI,
+          redirect_uri: redirectUri,
           grant_type: 'authorization_code',
         }),
       })
-      if (!tokenRes.ok) return NextResponse.redirect(new URL('/login?error=token', APP_URL))
+      if (!tokenRes.ok) return NextResponse.redirect(new URL('/login?error=token', origin))
       const tokens = await tokenRes.json()
       const profRes = await fetch('https://openidconnect.googleapis.com/v1/userinfo', {
         headers: { Authorization: `Bearer ${tokens.access_token}` },
       })
-      if (!profRes.ok) return NextResponse.redirect(new URL('/login?error=profile', APP_URL))
+      if (!profRes.ok) return NextResponse.redirect(new URL('/login?error=profile', origin))
       const p = await profRes.json()
 
       let user = await db.collection('users').findOne({ email: p.email })
@@ -208,7 +213,7 @@ export async function GET(request, { params }) {
       }
 
       const token = signUser(user)
-      const res = NextResponse.redirect(new URL(returnTo, APP_URL))
+      const res = NextResponse.redirect(new URL(returnTo, origin))
       res.cookies.set('elira_session', token, { httpOnly: true, secure: true, sameSite: 'lax', path: '/', maxAge: 7 * 24 * 60 * 60 })
       res.cookies.delete('google_oauth_state')
       return res
@@ -236,7 +241,7 @@ export async function GET(request, { params }) {
     if (route === 'user/orders') {
       const u = getUserFromRequest(request)
       if (!u) return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: cors })
-      const orders = await db.collection('orders').find({ userId: u.id }, { projection: { _id: 0 } }).sort({ createdAt: -1 }).toArray()
+      const orders = await db.collection('orders').find({ userId: u.id }, { projection: { _id: 0 } }).sort({ createdAt: -1 }).limit(500).toArray()
       return NextResponse.json({ orders }, { headers: cors })
     }
 
@@ -275,12 +280,12 @@ export async function GET(request, { params }) {
     }
     if (route === 'admin/orders') {
       if (!requireAdmin(request)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: cors })
-      const items = await db.collection('orders').find({}, { projection: { _id: 0 } }).sort({ createdAt: -1 }).toArray()
+      const items = await db.collection('orders').find({}, { projection: { _id: 0 } }).sort({ createdAt: -1 }).limit(500).toArray()
       return NextResponse.json({ orders: items }, { headers: cors })
     }
     if (route === 'admin/customers') {
       if (!requireAdmin(request)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: cors })
-      const users = await db.collection('users').find({}, { projection: { _id: 0, passwordHash: 0 } }).sort({ createdAt: -1 }).toArray()
+      const users = await db.collection('users').find({}, { projection: { _id: 0, passwordHash: 0 } }).sort({ createdAt: -1 }).limit(500).toArray()
       const stats = await db.collection('orders').aggregate([
         { $match: { userId: { $ne: null } } },
         { $group: { _id: '$userId', totalSpent: { $sum: '$totals.total' }, orderCount: { $sum: 1 }, lastOrder: { $max: '$createdAt' } } }
@@ -293,12 +298,12 @@ export async function GET(request, { params }) {
       if (!requireAdmin(request)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: cors })
       const id = route.split('/')[2]
       const user = await db.collection('users').findOne({ id }, { projection: { _id: 0, passwordHash: 0 } })
-      const orders = await db.collection('orders').find({ userId: id }, { projection: { _id: 0 } }).sort({ createdAt: -1 }).toArray()
+      const orders = await db.collection('orders').find({ userId: id }, { projection: { _id: 0 } }).sort({ createdAt: -1 }).limit(500).toArray()
       return NextResponse.json({ customer: user, orders }, { headers: cors })
     }
     if (route === 'admin/coupons') {
       if (!requireAdmin(request)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: cors })
-      const items = await db.collection('coupons').find({}, { projection: { _id: 0 } }).sort({ createdAt: -1 }).toArray()
+      const items = await db.collection('coupons').find({}, { projection: { _id: 0 } }).sort({ createdAt: -1 }).limit(500).toArray()
       return NextResponse.json({ coupons: items }, { headers: cors })
     }
 
@@ -341,7 +346,8 @@ export async function POST(request, { params }) {
         const token = crypto.randomBytes(32).toString('hex')
         const expiresAt = new Date(Date.now() + 60 * 60 * 1000) // 60 min
         await db.collection('password_resets').insertOne({ token, adminId: admin.id, email: admin.email, kind: 'admin', expiresAt, used: false, createdAt: new Date() })
-        const link = `${APP_URL}/admin/reset-password?token=${token}`
+        const origin = new URL(request.url).origin
+        const link = `${origin}/admin/reset-password?token=${token}`
         try { await sendMail({ to: admin.email, ...passwordResetEmail({ name: 'Administrator', link, isAdmin: true }) }) } catch(e){ console.error('SMTP failed:', e.message) }
       }
       return NextResponse.json({ success: true, message: 'If the email exists, a reset link has been sent.' }, { headers: cors })
@@ -404,7 +410,8 @@ export async function POST(request, { params }) {
         const token = crypto.randomBytes(32).toString('hex')
         const expiresAt = new Date(Date.now() + 60 * 60 * 1000)
         await db.collection('password_resets').insertOne({ token, userId: user.id, email: user.email, kind: 'user', expiresAt, used: false, createdAt: new Date() })
-        const link = `${APP_URL}/reset-password?token=${token}`
+        const origin = new URL(request.url).origin
+        const link = `${origin}/reset-password?token=${token}`
         try { await sendMail({ to: user.email, ...passwordResetEmail({ name: user.name, link, isAdmin: false }) }) } catch(e){ console.error('SMTP failed:', e.message) }
       }
       return NextResponse.json({ success: true, message: 'If the email exists, a reset link has been sent.' }, { headers: cors })
