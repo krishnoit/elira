@@ -11,7 +11,7 @@ import { toast } from 'sonner'
 import { addToCart, getCart, cartTotals } from '@/lib/cart'
 
 const HERO_SLIDES = [
-  { image: 'https://images.unsplash.com/photo-1603189343302-e603f7add05a?w=1920&q=90', tag: 'AUTUMN / WINTER 2025' },
+  { image: 'https://images.unsplash.com/photo-1603189343302-e603f7add05a?w=1920&q=90', tag: 'AUTUMN / WINTER' },
   { image: 'https://images.unsplash.com/photo-1574015974293-817f0ebebb74?w=1920&q=90', tag: 'THE ATELIER EDIT' },
   { image: 'https://images.pexels.com/photos/1066171/pexels-photo-1066171.jpeg?w=1920', tag: 'HERITAGE COLLECTION' },
 ]
